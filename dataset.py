@@ -27,7 +27,8 @@ class Dataset():
             train_meta = ([os.path.join(self.dataset_path, 'train_32x32.mat'),
                            os.path.join(self.dataset_path, 'extra_32x32.mat')], 604388)
         else:
-            train_meta = ([os.path.join(self.dataset_path, 'train_32x32.mat')], 73257)
+            train_meta = ([os.path.join(self.dataset_path, 'train_32x32.mat'), 
+                           os.path.join(self.dataset_path, 'train_rev_32x32.mat')], 2*73257)
 
         dataset_meta = {
             'train': train_meta,

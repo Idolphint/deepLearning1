@@ -7,7 +7,7 @@
 # Last Modified :
 # Created By : sunpeiqin
 # =======================================
-import numpy as np
+
 import tensorflow as tf
 import tensorflow.contrib as tf_contrib
 from common import config
@@ -34,32 +34,7 @@ class Model():
             x = tf.nn.relu(x)
         return x
 
-
-    def gauss(self, ksize):
-        sigma = ((ksize-1)*0.5-1)*0.3+0.8
-        sum_val=0
-        kernel=np.zeros((ksize, ksize))
-        center = ksize//2
-        for i in range(ksize):
-            for j in range(ksize):
-                kernel[i,j] = np.exp(-((i-center)**2 + (j-center)**2) / 2* sigma**2)
-                sum_val+=kernel[i,j]
-        kernel = kernel/sum_val
-        return kernel
-    
-    def _pool_layer(self, name, inp, ksize, stride,  p=4,  padding='SAME', mode='MAX'):
-        n, ksize, __, c = inp.shape
-        ksize, c = int(ksize), int(c)
-        gauss = self.gauss(ksize)
-        gk = np.zeros((ksize, ksize, c, c))
-        for j in range(c):
-            for i in range(c):
-                gk[:,:,j, i] = gauss[:,:]
-        gk = tf.convert_to_tensor(gk, dtype=tf.float32)
-        conv_o = tf.nn.conv2d(tf.pow(inp, p), gk, strides=[1, stride, stride, 1], padding=padding)
-        return tf.pow(conv_o, 1/p)
-
-    def _ori_pool_layer(self, name, inp, ksize, stride, padding='SAME', mode='MAX'):
+    def _pool_layer(self, name, inp, ksize, stride, padding='SAME', mode='MAX'):
         assert mode in ['MAX', 'AVG'], 'the mode of pool must be MAX or AVG'
         if mode == 'MAX':
             x = tf.nn.max_pool(inp, ksize=[1, ksize, ksize, 1], strides=[1, stride, stride, 1],
@@ -68,7 +43,7 @@ class Model():
             x = tf.nn.avg_pool(inp, ksize=[1, ksize, ksize, 1], strides=[1, stride, stride, 1],
                                padding=padding, name=name, data_format='NHWC')
         return x
-    
+
     def _fc_layer(self, name, inp, units, dropout=0.5):
         with tf.variable_scope(name) as scope:
             shape = inp.get_shape().as_list()
